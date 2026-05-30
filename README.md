@@ -1,0 +1,1 @@
+# effective_mobile-test-task-28-05-2026
