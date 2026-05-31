@@ -12,12 +12,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type subscriptionStorage struct {
+type SubscriptionStorage struct {
 	pool *pgxpool.Pool
 }
 
-func NewSubscriptionStorage(pool *pgxpool.Pool) *subscriptionStorage {
-	return &subscriptionStorage{
+func NewSubscriptionStorage(pool *pgxpool.Pool) *SubscriptionStorage {
+	return &SubscriptionStorage{
 		pool: pool,
 	}
 }
@@ -35,7 +35,7 @@ type Subscription struct {
 	EndDate     *time.Time `db:"end_date"`
 }
 
-func (r *subscriptionStorage) Create(ctx context.Context, sub domain.Subscription) (uuid.UUID, error) {
+func (r *SubscriptionStorage) Create(ctx context.Context, sub domain.Subscription) (uuid.UUID, error) {
 	query := `
 		INSERT INTO "subscription" (service_name, price, user_id, start_date, end_date)
 		VALUES ($1, $2, $3, $4, $5)
@@ -57,7 +57,7 @@ func (r *subscriptionStorage) Create(ctx context.Context, sub domain.Subscriptio
 	return id, nil
 }
 
-func (r *subscriptionStorage) Read(ctx context.Context, subID uuid.UUID) (domain.Subscription, error) {
+func (r *SubscriptionStorage) Read(ctx context.Context, subID uuid.UUID) (domain.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date
 		FROM "subscription"
@@ -80,7 +80,7 @@ func (r *subscriptionStorage) Read(ctx context.Context, subID uuid.UUID) (domain
 	return r.mapDBToDomainSubscription(dbSub), nil
 }
 
-func (r *subscriptionStorage) Update(ctx context.Context, sub domain.Subscription) error {
+func (r *SubscriptionStorage) Update(ctx context.Context, sub domain.Subscription) error {
 	query := `
 		UPDATE "subscription"
 		SET service_name = $2, price = $3, user_id = $4, start_date = $5, end_date = $6
@@ -106,7 +106,7 @@ func (r *subscriptionStorage) Update(ctx context.Context, sub domain.Subscriptio
 	return nil
 }
 
-func (r *subscriptionStorage) Delete(ctx context.Context, subID uuid.UUID) error {
+func (r *SubscriptionStorage) Delete(ctx context.Context, subID uuid.UUID) error {
 	query := `
 		DELETE FROM "subscription"
 		WHERE id = $1;
@@ -124,7 +124,7 @@ func (r *subscriptionStorage) Delete(ctx context.Context, subID uuid.UUID) error
 	return nil
 }
 
-func (r *subscriptionStorage) List(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Subscription, error) {
+func (r *SubscriptionStorage) List(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date
 		FROM "subscription"
@@ -151,7 +151,7 @@ func (r *subscriptionStorage) List(ctx context.Context, userID uuid.UUID, limit,
 	return subs, nil
 }
 
-func (r *subscriptionStorage) GetSumFromPeriod(ctx context.Context, userID uuid.UUID, serviceName string, periodStart time.Time, periodEnd *time.Time) ([]domain.Subscription, error) {
+func (r *SubscriptionStorage) GetFromPeriod(ctx context.Context, userID uuid.UUID, serviceName string, periodStart time.Time, periodEnd *time.Time) ([]domain.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date
         FROM "subscription"
@@ -179,7 +179,7 @@ func (r *subscriptionStorage) GetSumFromPeriod(ctx context.Context, userID uuid.
 	return subs, nil
 }
 
-func (r *subscriptionStorage) mapDBToDomainSubscription(sub Subscription) domain.Subscription {
+func (r *SubscriptionStorage) mapDBToDomainSubscription(sub Subscription) domain.Subscription {
 	return domain.Subscription{
 		ID:          sub.ID,
 		UserID:      sub.UserID,
