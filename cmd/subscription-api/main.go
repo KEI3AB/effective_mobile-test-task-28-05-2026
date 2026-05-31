@@ -44,7 +44,7 @@ func main() {
 
 	// POSTGRES
 	ctx := context.Background()
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?pool_max_conns=%d",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?pool_max_conns=%d&sslmode=disable",
 		cfg.PG.User, cfg.PG.Password, cfg.PG.Host, cfg.PG.Port, cfg.PG.DBName, cfg.PG.PoolMax,
 	)
 

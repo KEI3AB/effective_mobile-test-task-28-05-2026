@@ -130,7 +130,7 @@ func (h *SubscriptionHandler) GetSubscription(w http.ResponseWriter, r *http.Req
 
 	sub, err := h.usecase.Read(ctx, subID)
 	if err != nil {
-		if errors.Is(err, usecase.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			respondWithError(w, http.StatusNotFound, "Subscription not found")
 			return
 		}
@@ -224,7 +224,7 @@ func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.
 	}
 
 	if err := h.usecase.Update(ctx, domainSub); err != nil {
-		if errors.Is(err, usecase.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			respondWithError(w, http.StatusNotFound, "Subscription not found")
 			return
 		}
@@ -261,7 +261,7 @@ func (h *SubscriptionHandler) DeleteSubscription(w http.ResponseWriter, r *http.
 	}
 
 	if err := h.usecase.Delete(ctx, subID); err != nil {
-		if errors.Is(err, usecase.ErrNotFound) {
+		if errors.Is(err, domain.ErrNotFound) {
 			respondWithError(w, http.StatusNotFound, "Subscription not found")
 			return
 		}

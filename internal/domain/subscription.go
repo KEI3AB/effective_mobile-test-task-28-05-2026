@@ -1,10 +1,13 @@
 package domain
 
 import (
+	"errors"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+var ErrNotFound = errors.New("subscription not found")
 
 type Subscription struct {
 	ID          uuid.UUID

@@ -26,10 +26,6 @@ func NewSubscriptionStorage(pool *pgxpool.Pool, log *slog.Logger) *SubscriptionS
 	}
 }
 
-var (
-	ErrNoRowsAffected = errors.New("no rows affected")
-)
-
 type Subscription struct {
 	ID          uuid.UUID  `db:"id"`
 	UserID      uuid.UUID  `db:"user_id"`
@@ -78,7 +74,7 @@ func (r *SubscriptionStorage) Read(ctx context.Context, subID uuid.UUID) (domain
 	dbSub, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Subscription])
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return domain.Subscription{}, ErrNoRowsAffected
+			return domain.Subscription{}, domain.ErrNotFound
 		}
 		r.log.Error("failed to collect row in read", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return domain.Subscription{}, err
@@ -108,7 +104,7 @@ func (r *SubscriptionStorage) Update(ctx context.Context, sub domain.Subscriptio
 	}
 
 	if tag.RowsAffected() == 0 {
-		return ErrNoRowsAffected
+		return domain.ErrNotFound
 	}
 
 	return nil
@@ -127,7 +123,7 @@ func (r *SubscriptionStorage) Delete(ctx context.Context, subID uuid.UUID) error
 	}
 
 	if tag.RowsAffected() == 0 {
-		return ErrNoRowsAffected
+		return domain.ErrNotFound
 	}
 
 	return nil
