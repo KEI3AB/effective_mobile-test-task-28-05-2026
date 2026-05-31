@@ -19,6 +19,7 @@ type SubscriptionRepository interface {
 }
 
 var (
+	ErrNotFound         = errors.New("subscription not found")
 	ErrInvalidDates     = errors.New("end date cannot be before start date")
 	ErrInvalidPrice     = errors.New("price cannot be negative")
 	ErrEmptyServiceName = errors.New("service name cannot be empty")
