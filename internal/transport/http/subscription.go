@@ -90,6 +90,7 @@ func (h *SubscriptionHandler) CreateSubscription(w http.ResponseWriter, r *http.
 			respondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		h.log.Error("failed to create subscription in usecase", slog.String("error", err.Error()), slog.String("user_id", req.UserID))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -97,6 +98,7 @@ func (h *SubscriptionHandler) CreateSubscription(w http.ResponseWriter, r *http.
 	resp := CreateSubscriptionResponse{SubscriptionID: subID.String()}
 	payload, err := easyjson.Marshal(resp)
 	if err != nil {
+		h.log.Error("failed to marshal create response", slog.String("error", err.Error()))
 		respondWithError(w, http.StatusInternalServerError, "Failed to marshal response")
 		return
 	}
@@ -132,6 +134,7 @@ func (h *SubscriptionHandler) GetSubscription(w http.ResponseWriter, r *http.Req
 			respondWithError(w, http.StatusNotFound, "Subscription not found")
 			return
 		}
+		h.log.Error("failed to get subscription from usecase", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -151,6 +154,7 @@ func (h *SubscriptionHandler) GetSubscription(w http.ResponseWriter, r *http.Req
 	}
 	payload, err := easyjson.Marshal(resp)
 	if err != nil {
+		h.log.Error("failed to marshal read response", slog.String("error", err.Error()))
 		respondWithError(w, http.StatusInternalServerError, "Failed to marshal response")
 		return
 	}
@@ -228,6 +232,7 @@ func (h *SubscriptionHandler) UpdateSubscription(w http.ResponseWriter, r *http.
 			respondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		h.log.Error("failed to update subscription in usecase", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -260,6 +265,7 @@ func (h *SubscriptionHandler) DeleteSubscription(w http.ResponseWriter, r *http.
 			respondWithError(w, http.StatusNotFound, "Subscription not found")
 			return
 		}
+		h.log.Error("failed to delete subscription in usecase", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -294,6 +300,7 @@ func (h *SubscriptionHandler) ListSubscriptions(w http.ResponseWriter, r *http.R
 
 	subs, err := h.usecase.List(ctx, userID, limit, offset)
 	if err != nil {
+		h.log.Error("failed to list subscriptions from usecase", slog.String("error", err.Error()), slog.String("user_id", userIDStr))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -317,6 +324,7 @@ func (h *SubscriptionHandler) ListSubscriptions(w http.ResponseWriter, r *http.R
 	resp := ListSubscriptionsResponse{Subscriptions: dtoSubs}
 	payload, err := easyjson.Marshal(resp)
 	if err != nil {
+		h.log.Error("failed to marshal list response", slog.String("error", err.Error()))
 		respondWithError(w, http.StatusInternalServerError, "Failed to marshal response")
 		return
 	}
@@ -382,6 +390,7 @@ func (h *SubscriptionHandler) CalculateTotalCost(w http.ResponseWriter, r *http.
 			respondWithError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		h.log.Error("failed to calculate total cost in usecase", slog.String("error", err.Error()))
 		respondWithError(w, http.StatusInternalServerError, "Internal server error")
 		return
 	}
@@ -389,6 +398,7 @@ func (h *SubscriptionHandler) CalculateTotalCost(w http.ResponseWriter, r *http.
 	resp := CalcTotalCostResponse{TotalCost: totalCost}
 	payload, err := easyjson.Marshal(resp)
 	if err != nil {
+		h.log.Error("failed to marshal calc response", slog.String("error", err.Error()))
 		respondWithError(w, http.StatusInternalServerError, "Failed to marshal response")
 		return
 	}
