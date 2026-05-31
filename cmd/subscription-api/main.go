@@ -62,9 +62,9 @@ func main() {
 	logger.Info("connected to postgres successfully")
 
 	// LAYERS
-	repo := postgres.NewSubscriptionStorage(pool)
-	uc := usecase.NewSubscriptionUseCase(repo)
-	handler := myhttp.NewSubscriptionHandler(uc)
+	repo := postgres.NewSubscriptionStorage(pool, logger)
+	uc := usecase.NewSubscriptionUseCase(repo, logger)
+	handler := myhttp.NewSubscriptionHandler(uc, logger)
 
 	// ROUTER
 	r := chi.NewRouter()

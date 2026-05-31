@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -25,10 +26,11 @@ type SubscriptionUseCase interface {
 
 type SubscriptionHandler struct {
 	usecase SubscriptionUseCase
+	log     *slog.Logger
 }
 
-func NewSubscriptionHandler(uc SubscriptionUseCase) *SubscriptionHandler {
-	return &SubscriptionHandler{usecase: uc}
+func NewSubscriptionHandler(uc SubscriptionUseCase, log *slog.Logger) *SubscriptionHandler {
+	return &SubscriptionHandler{usecase: uc, log: log}
 }
 
 // CreateSubscription godoc

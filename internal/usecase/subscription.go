@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/effective_mobile-test-task-28-05-2026/internal/domain"
@@ -36,10 +37,11 @@ const (
 
 type SubscriptionUseCase struct {
 	repo SubscriptionRepository
+	log  *slog.Logger
 }
 
-func NewSubscriptionUseCase(repo SubscriptionRepository) *SubscriptionUseCase {
-	return &SubscriptionUseCase{repo: repo}
+func NewSubscriptionUseCase(repo SubscriptionRepository, log *slog.Logger) *SubscriptionUseCase {
+	return &SubscriptionUseCase{repo: repo, log: log}
 }
 
 func (uc *SubscriptionUseCase) Create(ctx context.Context, sub domain.Subscription) (uuid.UUID, error) {

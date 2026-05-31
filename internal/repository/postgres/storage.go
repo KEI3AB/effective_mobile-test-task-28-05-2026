@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/effective_mobile-test-task-28-05-2026/internal/domain"
@@ -15,11 +16,13 @@ import (
 
 type SubscriptionStorage struct {
 	pool *pgxpool.Pool
+	log  *slog.Logger
 }
 
-func NewSubscriptionStorage(pool *pgxpool.Pool) *SubscriptionStorage {
+func NewSubscriptionStorage(pool *pgxpool.Pool, log *slog.Logger) *SubscriptionStorage {
 	return &SubscriptionStorage{
 		pool: pool,
+		log:  log,
 	}
 }
 
@@ -52,6 +55,7 @@ func (r *SubscriptionStorage) Create(ctx context.Context, sub domain.Subscriptio
 		sub.EndDate,
 	).Scan(&id)
 	if err != nil {
+		r.log.Error("failed to execute create query", slog.String("error", err.Error()), slog.String("user_id", sub.UserID.String()))
 		return uuid.Nil, err
 	}
 
@@ -67,14 +71,16 @@ func (r *SubscriptionStorage) Read(ctx context.Context, subID uuid.UUID) (domain
 
 	rows, err := r.pool.Query(ctx, query, subID)
 	if err != nil {
+		r.log.Error("failed to execute read query", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return domain.Subscription{}, err
 	}
 
 	dbSub, err := pgx.CollectOneRow(rows, pgx.RowToStructByName[Subscription])
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return domain.Subscription{}, ErrNoRowsAffected
 		}
+		r.log.Error("failed to collect row in read", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return domain.Subscription{}, err
 	}
 
@@ -97,6 +103,7 @@ func (r *SubscriptionStorage) Update(ctx context.Context, sub domain.Subscriptio
 		sub.EndDate,
 	)
 	if err != nil {
+		r.log.Error("failed to execute update query", slog.String("error", err.Error()), slog.String("sub_id", sub.ID.String()))
 		return err
 	}
 
@@ -115,6 +122,7 @@ func (r *SubscriptionStorage) Delete(ctx context.Context, subID uuid.UUID) error
 
 	tag, err := r.pool.Exec(ctx, query, subID)
 	if err != nil {
+		r.log.Error("failed to execute delete query", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return err
 	}
 
@@ -136,11 +144,13 @@ func (r *SubscriptionStorage) List(ctx context.Context, userID uuid.UUID, limit,
 
 	rows, err := r.pool.Query(ctx, query, userID, limit, offset)
 	if err != nil {
+		r.log.Error("failed to execute list query", slog.String("error", err.Error()), slog.String("user_id", userID.String()))
 		return nil, err
 	}
 
 	dbSubs, err := pgx.CollectRows(rows, pgx.RowToStructByName[Subscription])
 	if err != nil {
+		r.log.Error("failed to collect rows in list", slog.String("error", err.Error()), slog.String("user_id", userID.String()))
 		return nil, err
 	}
 
@@ -176,11 +186,13 @@ func (r *SubscriptionStorage) GetFromPeriod(ctx context.Context, userID uuid.UUI
 
 	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
+		r.log.Error("failed to execute GetFromPeriod query", slog.String("error", err.Error()))
 		return nil, err
 	}
 
 	dbSubs, err := pgx.CollectRows(rows, pgx.RowToStructByName[Subscription])
 	if err != nil {
+		r.log.Error("failed to collect rows in GetFromPeriod", slog.String("error", err.Error()))
 		return nil, err
 	}
 
