@@ -172,7 +172,6 @@ func (r *SubscriptionStorage) GetFromPeriod(ctx context.Context, userID uuid.UUI
 	if serviceName != "" {
 		query += fmt.Sprintf(" AND service_name = $%d", argCounter)
 		args = append(args, serviceName)
-		argCounter++
 	}
 
 	rows, err := r.pool.Query(ctx, query, args...)

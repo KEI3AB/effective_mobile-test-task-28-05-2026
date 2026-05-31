@@ -19,6 +19,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	_ "github.com/effective_mobile-test-task-28-05-2026/docs"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title           API Агрегатора Подписок
@@ -83,6 +86,10 @@ func main() {
 			r.Delete("/", handler.DeleteSubscription)
 		})
 	})
+
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
 
 	// START SERVER
 	srv := &http.Server{

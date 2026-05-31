@@ -1,0 +1,282 @@
+basePath: /api/v1
+definitions:
+  http.CalcTotalCostResponse:
+    properties:
+      total_cost:
+        type: integer
+    type: object
+  http.CreateSubscriptionRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  http.CreateSubscriptionResponse:
+    properties:
+      subscription_id:
+        type: string
+    type: object
+  http.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  http.ListSubscriptionsResponse:
+    properties:
+      subscriptions:
+        items:
+          $ref: '#/definitions/http.SubscriptionDTO'
+        type: array
+    type: object
+  http.ReadSubscriptionResponse:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  http.SubscriptionDTO:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+  http.UpdateSubscriptionRequest:
+    properties:
+      end_date:
+        type: string
+      price:
+        type: integer
+      service_name:
+        type: string
+      start_date:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    name: Junior Golang Developer
+  description: REST-сервис для управления и агрегации данных об онлайн-подписках пользователей.
+  title: API Агрегатора Подписок
+  version: "1.0"
+paths:
+  /costs:
+    get:
+      description: Рассчитывает общую сумму трат на подписки за выбранный период с
+        возможностью фильтрации
+      parameters:
+      - description: UUID пользователя (опционально)
+        in: query
+        name: user_id
+        type: string
+      - description: Название сервиса (опционально)
+        in: query
+        name: service_name
+        type: string
+      - description: Начало периода в формате MM-YYYY
+        in: query
+        name: start_date
+        required: true
+        type: string
+      - description: Конец периода в формате MM-YYYY (опционально)
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешный расчет
+          schema:
+            $ref: '#/definitions/http.CalcTotalCostResponse'
+        "400":
+          description: Неверный формат дат или параметров
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Подсчет суммарной стоимости
+      tags:
+      - calculations
+  /subscriptions:
+    get:
+      description: Возвращает список подписок пользователя с поддержкой пагинации
+      parameters:
+      - description: UUID пользователя
+        in: query
+        name: user_id
+        required: true
+        type: string
+      - description: Количество записей (по умолчанию 20, макс 100)
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение для пагинации
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение списка
+          schema:
+            $ref: '#/definitions/http.ListSubscriptionsResponse'
+        "400":
+          description: Неверный формат параметров
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Получение списка подписок
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Создает запись о подписке пользователя на определенный сервис
+      parameters:
+      - description: Данные о подписке
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.CreateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Успешно создано
+          schema:
+            $ref: '#/definitions/http.CreateSubscriptionResponse'
+        "400":
+          description: Неверный формат запроса или ошибка валидации
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Создание новой подписки
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Удаляет запись о подписке по ее ID
+      parameters:
+      - description: UUID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "204":
+          description: Успешно удалено (без тела ответа)
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Удаление подписки
+      tags:
+      - subscriptions
+    get:
+      description: Возвращает детальную информацию о конкретной подписке
+      parameters:
+      - description: UUID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Успешное получение
+          schema:
+            $ref: '#/definitions/http.ReadSubscriptionResponse'
+        "400":
+          description: Неверный формат ID
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Получение подписки по ID
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Полностью обновляет данные существующей подписки
+      parameters:
+      - description: UUID подписки
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Новые данные подписки
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/http.UpdateSubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Подписка успешно обновлена
+        "400":
+          description: Неверный формат запроса или ошибка валидации
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "404":
+          description: Подписка не найдена
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/http.ErrorResponse'
+      summary: Обновление подписки
+      tags:
+      - subscriptions
+swagger: "2.0"
