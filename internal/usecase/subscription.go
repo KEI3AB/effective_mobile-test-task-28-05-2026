@@ -52,6 +52,7 @@ func (uc *SubscriptionUseCase) Create(ctx context.Context, sub domain.Subscripti
 
 	subID, err := uc.repo.Create(ctx, sub)
 	if err != nil {
+		uc.log.Error("failed to create subscription in repo", slog.String("error", err.Error()), slog.String("user_id", sub.UserID.String()))
 		return uuid.Nil, err
 	}
 
@@ -61,6 +62,7 @@ func (uc *SubscriptionUseCase) Create(ctx context.Context, sub domain.Subscripti
 func (uc *SubscriptionUseCase) Read(ctx context.Context, subID uuid.UUID) (domain.Subscription, error) {
 	sub, err := uc.repo.Read(ctx, subID)
 	if err != nil {
+		uc.log.Error("failed to read subscription from repo", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return domain.Subscription{}, err
 	}
 
@@ -75,6 +77,7 @@ func (uc *SubscriptionUseCase) Update(ctx context.Context, sub domain.Subscripti
 
 	err = uc.repo.Update(ctx, sub)
 	if err != nil {
+		uc.log.Error("failed to update subscription in repo", slog.String("error", err.Error()), slog.String("sub_id", sub.ID.String()))
 		return err
 	}
 
@@ -84,6 +87,7 @@ func (uc *SubscriptionUseCase) Update(ctx context.Context, sub domain.Subscripti
 func (uc *SubscriptionUseCase) Delete(ctx context.Context, subID uuid.UUID) error {
 	err := uc.repo.Delete(ctx, subID)
 	if err != nil {
+		uc.log.Error("failed to delete subscription in repo", slog.String("error", err.Error()), slog.String("sub_id", subID.String()))
 		return err
 	}
 
@@ -92,18 +96,22 @@ func (uc *SubscriptionUseCase) Delete(ctx context.Context, subID uuid.UUID) erro
 
 func (uc *SubscriptionUseCase) List(ctx context.Context, userID uuid.UUID, limit, offset int) ([]domain.Subscription, error) {
 	if limit < 0 {
+		uc.log.Warn("negative limit provided, using default", slog.Int("provided_limit", limit))
 		limit = DefaultLimit
 	}
 	if offset < 0 {
+		uc.log.Warn("negative offset provided, using min", slog.Int("provided_offset", offset))
 		offset = MinOffset
 	}
 
 	if limit > MaxLimit {
+		uc.log.Warn("limit exceeds maximum, capping to max", slog.Int("provided_limit", limit))
 		limit = MaxLimit
 	}
 
 	subs, err := uc.repo.List(ctx, userID, limit, offset)
 	if err != nil {
+		uc.log.Error("failed to list subscriptions from repo", slog.String("error", err.Error()), slog.String("user_id", userID.String()))
 		return nil, err
 	}
 
@@ -123,6 +131,7 @@ func (uc *SubscriptionUseCase) CalculatePriceFromPeriod(
 
 	subs, err := uc.repo.GetFromPeriod(ctx, userID, serviceName, periodStart, periodEnd)
 	if err != nil {
+		uc.log.Error("failed to get subscriptions from period in repo", slog.String("error", err.Error()), slog.String("user_id", userID.String()))
 		return 0, err
 	}
 
