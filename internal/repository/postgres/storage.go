@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/effective_mobile-test-task-28-05-2026/internal/domain"
@@ -154,14 +155,27 @@ func (r *SubscriptionStorage) List(ctx context.Context, userID uuid.UUID, limit,
 func (r *SubscriptionStorage) GetFromPeriod(ctx context.Context, userID uuid.UUID, serviceName string, periodStart time.Time, periodEnd *time.Time) ([]domain.Subscription, error) {
 	query := `
 		SELECT id, service_name, price, user_id, start_date, end_date
-        FROM "subscription"
-        WHERE user_id = $1
-		AND service_name = $2
-		AND (end_date IS NULL OR end_date >= $3)
-		AND ($4::date IS NULL OR start_date <= $4);
+		FROM "subscription"
+		WHERE (end_date IS NULL OR end_date >= $1)
+		AND ($2::date IS NULL OR start_date <= $2)
 	`
 
-	rows, err := r.pool.Query(ctx, query, userID, serviceName, periodStart, periodEnd)
+	args := []interface{}{periodStart, periodEnd}
+	argCounter := 3
+
+	if userID != uuid.Nil {
+		query += fmt.Sprintf(" AND user_id = $%d", argCounter)
+		args = append(args, userID)
+		argCounter++
+	}
+
+	if serviceName != "" {
+		query += fmt.Sprintf(" AND service_name = $%d", argCounter)
+		args = append(args, serviceName)
+		argCounter++
+	}
+
+	rows, err := r.pool.Query(ctx, query, args...)
 	if err != nil {
 		return nil, err
 	}
