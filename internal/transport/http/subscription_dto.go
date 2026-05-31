@@ -3,6 +3,11 @@ package http
 //go:generate easyjson $GOFILE
 
 //easyjson:json
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+//easyjson:json
 type SubscriptionDTO struct {
 	ServiceName string `json:"service_name"`
 	Price       int    `json:"price"`
