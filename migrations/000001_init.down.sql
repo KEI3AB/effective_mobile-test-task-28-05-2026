@@ -1,2 +1,2 @@
-DROP INDEX IF EXISTS idx_subscriptions_user_service;
-DROP TABLE IF EXISTS subscriptions;
+DROP INDEX IF EXISTS idx_subscription_user_service;
+DROP TABLE IF EXISTS subscription;
