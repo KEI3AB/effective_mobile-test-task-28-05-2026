@@ -3,6 +3,7 @@ module github.com/effective_mobile-test-task-28-05-2026
 go 1.26.1
 
 require (
+	github.com/go-chi/chi/v5 v5.3.0
 	github.com/google/uuid v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.9.2
